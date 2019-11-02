@@ -11,4 +11,4 @@
 1. Alexey Ozerin
 2. Sergey Kim
 3. Andrey Bocharnikov
-4. 🍿
+4. Ivan Lazunin
