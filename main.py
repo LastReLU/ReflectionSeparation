@@ -1,3 +1,4 @@
+import numpy as np
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,6 +20,10 @@ class Net(nn.Module):
 net = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+img1 = th.Tensor(np.ones((1, 3, 5, 6)))
+print("Before: ", img1.shape)
+print("After:  ", net(img1).shape)
 
 for epoch in range(0):
     for i, data in enumerate(trainLoader, 0):
