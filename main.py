@@ -7,8 +7,6 @@ from model import NetArticle
 ALPHA = 0.5
 
 
-
-
 def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer, epochs=0, alpha=ALPHA):
     losses = []
     model.train()
