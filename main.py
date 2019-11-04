@@ -3,16 +3,10 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from model import NetArticle
 ALPHA = 0.5
 
 
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.channels_x2 = nn.Conv2d(3, 6, 1)
-    def forward(self, x):
-        x = self.channels_x2(x)
-        return x
 
 
 def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer, epochs=0, alpha=ALPHA):
@@ -20,7 +14,7 @@ def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer
     model.train()
     for epoch in range(epochs):
         for i, batch in enumerate(zip(train_loader_indoor, train_loader_outdoor)):
-            batch_indoor, batch_outdoor = batch    # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 3, n, n), (bs, 3, n, n))
+            batch_indoor, batch_outdoor = batch  # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 3, n, n), (bs, 3, n, n))
             features_indoor, ground_truth_indoor = batch_indoor
             features_outdoor, ground_truth_outdoor = batch_outdoor
             features = alpha * features_indoor + (1 - alpha) * features_outdoor
@@ -55,7 +49,7 @@ def test(test_loader, model, criterion, alpha=ALPHA):
 
 def main():
     #train_loader, test_loader -- работаем над этим
-    net = Net()
+    net = NetArticle()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     #train(train_loader, net, criterion, optimizer)
