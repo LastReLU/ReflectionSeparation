@@ -45,9 +45,9 @@ def test(test_loader, model, criterion):
 net = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-train(train_loader, net, criterion, optimizer)
-losses = test(test_loader, net, criterion)
-print(losses)
+#train(train_loader, net, criterion, optimizer)
+#losses = test(test_loader, net, criterion)
+#print(losses)
 
 img1 = th.Tensor(np.ones((1, 3, 5, 6)))
 print("Before: ", img1.shape)
