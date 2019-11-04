@@ -1,7 +1,5 @@
 import os
 import requests
-import urllib.request
-import time
 from bs4 import BeautifulSoup
 
 def get_img(id):
