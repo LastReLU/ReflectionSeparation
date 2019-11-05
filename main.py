@@ -54,7 +54,7 @@ def main():
     #losses = test(test_loader, net, criterion)
     #print(losses)
 
-    img1 = th.Tensor(np.ones((1, 3, 5, 6)))
+    img1 = th.Tensor(np.ones((1, 3, 128, 128)))
     print("Before: ", img1.shape)
     print("After:  ", net(img1).shape)
 
