@@ -26,16 +26,25 @@ def outdoor(dir_name):
 
 def indoor(dir_name):
     os.mkdir('data/{}'.format(dir_name))
-    url = 'http://groups.csail.mit.edu/vision/LabelMe/NewImages/indoorCVPR_09.tar'
-    r = requests.get(url, allow_redirects=True)
-    open('data/indoor_img.tar', 'wb').write(r.content)
-    tar =  tarfile.open('data/indoor_img.tar', 'r:')
+
+    # url = 'http://groups.csail.mit.edu/vision/LabelMe/NewImages/indoorCVPR_09.tar'
+    # r = requests.get(url, allow_redirects=True)
+    # open('data/indoor_img.tar', 'wb').write(r.content)
+    
+    tar =  tarfile.open('indoor_img.tar', 'r:')
     tar.extractall('data/indoor_img')
     tar.close()
 
     for current_dir, dirs, files in os.walk('data/indoor_img'):
         for file in files:
             replace(file, current_dir, 'data/{}'.format(dir_name))
+        print(current_dir)
+        if current_dir != 'data/indoor_img' and current_dir != 'data/indoor_img\Images':
+            os.rmdir(current_dir)
+
+    os.rmdir('data/indoor_img/Images')
+    os.rmdir('data/indoor_img')
+
 
 def init():
     os.mkdir('data')
