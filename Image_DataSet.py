@@ -10,7 +10,7 @@ class ImageDataSet(Dataset):
         self.len = len_
         self.path = ''
         if class_ == 'indoors':
-            self.path = os.getcwd() + '/mapped_ids'
+            self.path = os.getcwd() + '/indoor'
         elif class_ == 'outdoors':
             self.path = os.getcwd() + '/outdoor'
         else:
@@ -22,6 +22,9 @@ class ImageDataSet(Dataset):
 
     def __getitem__(self, id):
         img = Image.open(self.path + '/' + str(self.permutation[id]) + '.jpg')
+        # img = img.convert('RGB')
+
+        # img = cv2.imread(self.path + '/' + str(self.permutation[id]) + '.jpg', cv2.COLOR_BGR2RGB)
 
         crop = torchvision.transforms.RandomCrop(128)
         croped_image = np.array(crop(img))
@@ -34,9 +37,8 @@ class ImageDataSet(Dataset):
             raise Exception('image ' + str(self.permutation[id]) + 'is jpeg, but jpg is required')
 
         return transposed_image
-'''
+
 imageDataSet = ImageDataSet('indoors')
 loader = DataLoader(imageDataSet, batch_size=3)
 for i in loader:
     pass
-'''
