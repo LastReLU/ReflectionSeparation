@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 from PIL import Image
 
+
 def check_RGB(img):
     if len(img.shape) == 2: # check that image is RGB
         return False
@@ -14,6 +15,7 @@ def check_RGB(img):
     if min(x.shape[1], x.shape[2]) < 128: #check that image is large enought
         return False
     return (((x[0] == x[1]) & (x[1] == x[2])) == False).sum() != 0
+
 
 id_ = 0
 os.mkdir(os.getcwd() + '/mapped_ids')
@@ -28,4 +30,5 @@ for current_dir, dirs, files in os.walk(os.getcwd() + '/indoorCVPR_09'):
         if check_RGB(img):
             copyfile(src, os.getcwd() + '/mapped_ids/' + cur_name)
             id_ += 1
+
 print(15620 - id_)

@@ -10,7 +10,7 @@ def main():
     list_of_img = os.listdir(dir_name)
     if not len(list_of_img):
         exit()
-    
+
     os.mkdir('{}_grey'.format(dir_name))
 
     for img_name in list_of_img:

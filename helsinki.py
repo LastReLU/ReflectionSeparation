@@ -2,10 +2,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
+
 def get_img(id):
     url = 'https://www.hel-looks.com/big-photos/{}.jpg'.format(id)
     r = requests.get(url, allow_redirects=True)
     open('outdoor/img_{}.jpg'.format(id), 'wb').write(r.content)
+
 
 def get_dataset():
     os.mkdir('outdoor')
@@ -17,5 +19,6 @@ def get_dataset():
     for link in links:
         img_id = link.get('href')[1:]
         get_img(img_id)
+
 
 get_dataset()
