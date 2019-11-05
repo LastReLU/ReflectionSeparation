@@ -12,27 +12,85 @@ class NetArticle(nn.Module):
         self.conv_intro_3456 = nn.Conv2d(16, 16, kernel_size=5)
 
         self.conv_down_1 = nn.Conv2d(16, 32, kernel_size=5)
-        self.conv_down_2 = nn.Conv2d(32, 32, kernel_size=5)
+        self.conv_down_2 = nn.Conv2d(32, 32, kernel_size=5) # 32 to concat
         self.conv_down_3 = nn.Conv2d(32, 64, kernel_size=5)
-        self.conv_down_4 = nn.Conv2d(64, 64, kernel_size=5)
+        self.conv_down_4 = nn.Conv2d(64, 64, kernel_size=5) # 64 to concat
         self.conv_down_5 = nn.Conv2d(64, 128, kernel_size=5)
         self.conv_down_6 = nn.Conv2d(128, 128, kernel_size=5)
 
         self.conv_up_1 = nn.Conv2d(128, 128, kernel_size=5)
         self.conv_up_2 = nn.Conv2d(128, 64, kernel_size=5)
-        self.conv_up_3 = nn.Conv2d(64, 64, kernel_size=5)
+        self.conv_up_3 = nn.Conv2d(128, 64, kernel_size=5) # not 64. but 64 + 64 = 128 because of concat
         self.conv_up_4 = nn.Conv2d(64, 32, kernel_size=5)
-        self.conv_up_5 = nn.Conv2d(32, 32, kernel_size=5)
+        self.conv_up_5 = nn.Conv2d(64, 32, kernel_size=5)  # not 32. but 32 + 32 = 64 because of concat
         self.conv_up_6 = nn.Conv2d(32, 16, kernel_size=5)
 
         self.conv_final_1234 = nn.Conv2d(16, 16, kernel_size=5)
         self.conv_final_5 = nn.Conv2d(16, 16, kernel_size=9)
-        self.conv_final_6 = nn.Conv2d(16, 3, kernel_size=9)
+        self.conv_final_6 = nn.Conv2d(16, 6, kernel_size=9) # not 16, 3 as two first layers. but 16, 6 because of concat
 
         self.channels_x2 = nn.Conv2d(3, 6, kernel_size=1)
 
+    def intro(self, x):
+        x = self.conv_intro_1(x)
+        x = F.relu(x)
+        x = self.conv_intro_2(x)
+        x = F.relu(x)
+        x = self.conv_intro_3456(x)
+        x = F.relu(x)
+        x = self.conv_intro_3456(x)
+        x = F.relu(x)
+        x = self.conv_intro_3456(x)
+        x = F.relu(x)
+        x = self.conv_intro_3456(x)
+        return x
+
+    def body(self, x):
+        legacy1 = self.conv_down_1(x)
+        legacy1 = F.relu(legacy1)
+        legacy1 = self.conv_down_2(legacy1)
+        legacy1 = F.relu(legacy1)   # shape is 32
+        legacy2 = self.conv_down_3(legacy1)
+        legacy2 = F.relu(legacy2)
+        legacy2 = self.conv_down_4(legacy2)
+        legacy2 = F.relu(legacy2)   # shape is 64
+        legacy3 = self.conv_down_5(legacy2)
+        legacy3 = F.relu(legacy3)
+        legacy3 = self.conv_down_6(legacy3)
+        legacy3 = F.relu(legacy3)   # shape is 128 (actually we needn't legacy3)
+        up = self.conv_up_1(legacy3)
+        up = F.relu(up)
+        up = self.conv_up_2(up)
+        up = F.relu(up)
+        up = self.conv_up_3(np.concatenate((legacy2, up)))
+        up = F.relu(up)
+        up = self.conv_up_4(up)
+        up = F.relu(up)
+        up = self.conv_up_5(np.concatenate((legacy1, up)))
+        up = F.relu(up)
+        up = self.conv_up_6(up)
+        up = F.relu(up)
+        return up
+
+    def final(self, x):
+        x = self.conv_final_1234(x)
+        x = F.relu(x)
+        x = self.conv_final_1234(x)
+        x = F.relu(x)
+        x = self.conv_final_1234(x)
+        x = F.relu(x)
+        x = self.conv_final_1234(x)
+        x = F.relu(x)
+        x = self.conv_final_5(x)
+        x = F.relu(x)
+        x = self.conv_final_6(x)
+        x = F.relu(x)
+        return x
+
     def forward(self, x):
-        x = self.channels_x2(x)
+        x = intro(x)
+        x = body(x)
+        x = final(x)
         return x
 
 
@@ -43,3 +101,4 @@ class NetToy(nn.Module):
     def forward(self, x):
         x = self.channels_x2(x)
         return x
+
