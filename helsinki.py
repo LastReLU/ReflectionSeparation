@@ -5,10 +5,10 @@ from bs4 import BeautifulSoup
 def get_img(id):
     url = 'https://www.hel-looks.com/big-photos/{}.jpg'.format(id)
     r = requests.get(url, allow_redirects=True)
-    open('outdoor_imgs/img_{}.jpg'.format(id), 'wb').write(r.content)
+    open('outdoor/img_{}.jpg'.format(id), 'wb').write(r.content)
 
 def get_dataset():
-    os.mkdir('outdoor_imgs')
+    os.mkdir('outdoor')
 
     url = 'https://www.hel-looks.com/archive/#20190810_13'
     response = requests.get(url)
