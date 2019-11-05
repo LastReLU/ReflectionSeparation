@@ -16,21 +16,27 @@ def check_RGB(img):
         return False
     return (((x[0] == x[1]) & (x[1] == x[2])) == False).sum() != 0
 
-if len(sys.argv) != 2:
-    print('Enter distination folder')
-else:
+def chang_data(path):
+    amount_before = 0
     id_ = 0
-    path = os.getcwd() + sys.argv[1]
+    newpath = os.getcwd() + '/' + path
+    os.mkdir(path)
+    path = newpath + '_row'
     for current_dir, _, files in os.walk(path):
         for file in files:
             cur_name = str(id_) + '.jpg'
             src = current_dir + '/' + file
 
             img = cv2.imread(src, cv2.COLOR_BGR2RGB)
-            # img = np.array(Image.open(src))
-
             if check_RGB(img):
-                # copyfile(src, os.getcwd() + '/mapped_ids/' + cur_name)
-                os.rename(src, path + cur_name)
+                copyfile(src, newpath + '/' + cur_name)
                 id_ += 1
-    print(15620 - id_)
+            os.remove(src)
+            amount_before += 1
+    os.rmdir(path)
+    return (id_, amount_before)
+
+pare = chang_data('data/indoor')
+pare2 = chang_data('data/outdoor')
+print('There are ' + str(pare[0]) + ' sutable files of ' + str(pare[1]) + ' from indoor')
+print('Same about outdoor', pare2[0], pare2[1])
