@@ -46,11 +46,14 @@ def test(test_loader, model, criterion, alpha=ALPHA):
 
 
 def main():
-    #train_loader, test_loader -- работаем над этим
+    n, m = 20, 20
+    train_loader_outdoor = DataLoader(ImageDataSet('outdoor', n), batch_size=2)
+    train_loader_indoor = DataLoader(ImageDataSet('indoor', m), batch_size=2)
+
     net = NetArticle()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-    #train(train_loader, net, criterion, optimizer)
+    losses = train(train_loader_indoor, train_loader_outdoor, net, criterion, optimizer)
     #losses = test(test_loader, net, criterion)
     #print(losses)
 
