@@ -5,14 +5,13 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 
 class ImageDataSet(Dataset):
-    def __init__(self, class_='indoors', len_=15620 - 185):  # 185 is amount of jpeg, black and wite, and too small
-        # picters, 15620 is a size of indoors dataset
+    def __init__(self, class_='indoors', len_=15305):
         self.len = len_
         self.path = ''
-        if class_ == 'indoors':
-            self.path = os.getcwd() + '/mapped_ids'
-        elif class_ == 'outdoors':
-            self.path = os.getcwd() + '/outdoor'
+        if class_ == 'indoor':
+            self.path = os.getcwd() + '/data/indoor'
+        elif class_ == 'outdoor':
+            self.path = os.getcwd() + '/data/outdoor'
         else:
             raise Exception()
         self.permutation = np.random.permutation(self.len)
@@ -22,6 +21,7 @@ class ImageDataSet(Dataset):
 
     def __getitem__(self, id):
         img = Image.open(self.path + '/' + str(self.permutation[id]) + '.jpg')
+        img = img.convert('RGB') #Sometimes cv2.imread reads RGBA as RGB and after 'fro raw to requred there are still some JPEG'
 
         crop = torchvision.transforms.RandomCrop(128)
         croped_image = np.array(crop(img))
@@ -35,8 +35,8 @@ class ImageDataSet(Dataset):
 
         return transposed_image
 '''
-imageDataSet = ImageDataSet('indoors')
-loader = DataLoader(imageDataSet, batch_size=3)
-for i in loader:
+loader_outdoors = DataLoader(ImageDataSet('outdoor', n), batch_size=3)
+loader_indoors = DataLoader(ImageDataSet('indoor', 15305), batch_size=3)
+for i, batch in enumerate(zip(loader_indoors, loader_outdoors)):
     pass
 '''

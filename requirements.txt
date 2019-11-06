@@ -1,4 +1,6 @@
 pytorch==1.2.0
+numpy==1.17.3
+opencv-python==4.1.1.26
 torchvision==0.4.0
 requests==2.22.0
 bs4==0.0.1

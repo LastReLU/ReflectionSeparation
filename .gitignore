@@ -1,3 +1,5 @@
 .env
 .vscode
 *door/
+data/
+blur.py
