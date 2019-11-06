@@ -30,7 +30,7 @@ class ImageDataSet(Dataset):
         if min(croped_image.shape[0], croped_image.shape[1]) < 128:
             raise Exception('image' + str(self.permutation[id]) + 'is too small')
 
-        transposed_image = np.expand_dims(np.transpose(croped_image, (2, 0, 1)), axis=0)
+        transposed_image = np.transpose(croped_image, (2, 0, 1))
         #print(transposed_image.shape)
         if (transposed_image.shape[0] == 4):
             raise Exception('image ' + str(self.permutation[id]) + 'is jpeg, but jpg is required')
