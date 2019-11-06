@@ -4,10 +4,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from model import NetArticle
+import Image_DataSet as dtst
 ALPHA = 0.5
 
 
-def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer, epochs=0, alpha=ALPHA):
+def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer, epochs=1, alpha=ALPHA):
     losses = []
     model.train()
     for epoch in range(epochs):
@@ -47,15 +48,15 @@ def test(test_loader, model, criterion, alpha=ALPHA):
 
 def main():
     n, m = 20, 20
-    train_loader_outdoor = DataLoader(ImageDataSet('outdoor', n), batch_size=2)
-    train_loader_indoor = DataLoader(ImageDataSet('indoor', m), batch_size=2)
+    train_loader_outdoor = th.utils.data.DataLoader(dtst.ImageDataSet('outdoor', n), batch_size=2)
+    train_loader_indoor = th.utils.data.DataLoader(dtst.ImageDataSet('indoor', m), batch_size=2)
 
     net = NetArticle()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     losses = train(train_loader_indoor, train_loader_outdoor, net, criterion, optimizer)
     #losses = test(test_loader, net, criterion)
-    #print(losses)
+    print(losses)
 
     img1 = th.Tensor(np.ones((1, 3, 128, 128)))
     print("Before: ", img1.shape)
