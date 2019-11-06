@@ -17,10 +17,12 @@ def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer
             features_indoor, ground_truth_indoor = batch_indoor
             features_outdoor, ground_truth_outdoor = batch_outdoor
             features = alpha * features_indoor + (1 - alpha) * features_outdoor
-            ground_truth = np.concatenate((ground_truth_indoor, ground_truth_outdoor), axis=1)
+            ground_truth = th.Tensor(np.concatenate((ground_truth_indoor, ground_truth_outdoor), axis=1))
 
             optimizer.zero_grad()
             predicts = model(features)
+            print(type(predicts), type(ground_truth))
+            print(predicts.shape, ground_truth.shape)
             loss = criterion(predicts, ground_truth)
             loss.backward()
             optimizer.step()
@@ -52,7 +54,7 @@ def main():
     train_loader_indoor = th.utils.data.DataLoader(dtst.ImageDataSet('indoor', m), batch_size=2)
 
     net = NetArticle()
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     losses = train(train_loader_indoor, train_loader_outdoor, net, criterion, optimizer)
     #losses = test(test_loader, net, criterion)
