@@ -34,12 +34,11 @@ class ImageDataSet(Dataset):
         #print(transposed_image.shape)
         if (transposed_image.shape[0] == 4):
             raise Exception('image ' + str(self.permutation[id]) + 'is jpeg, but jpg is required')
-
-        return transposed_image
+        return torch.Tensor((255 - transposed_image) / 255)
 
 '''
 loader_indoors = ImageDataSet('indoor', 15305)
-loader_indoors.__getitem__(4)
+print(loader_indoors.__getitem__(4))
 loader_outdoors = DataLoader(ImageDataSet('outdoor', n), batch_size=3)
 for i, batch in enumerate(zip(loader_indoors, loader_outdoors)):
     pass

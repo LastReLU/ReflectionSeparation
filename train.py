@@ -15,12 +15,12 @@ def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer
         losses = []
         for i, batch in enumerate(zip(train_loader_indoor, train_loader_outdoor)):
             batch_indoor, batch_outdoor = batch  # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 3, n, n), (bs, 3, n, n))
-            print(len(batch), type(batch[0]), type(batch[1]), batch_indoor.shape, batch_outdoor.shape)
-            features_indoor, ground_truth_indoor = batch_indoor
-            features_outdoor, ground_truth_outdoor = batch_outdoor
+            #print(len(batch), type(batch[0]), type(batch[1]), batch_indoor.shape, batch_outdoor.shape)
+            features_indoor, ground_truth_indoor = batch_indoor, batch_indoor
+            #   print(features_indoor)
+            features_outdoor, ground_truth_outdoor = batch_outdoor, batch_outdoor
             features = alpha * features_indoor + (1 - alpha) * features_outdoor
             ground_truth = th.Tensor(np.concatenate((ground_truth_indoor, ground_truth_outdoor), axis=1))
-
             optimizer.zero_grad()
             predicts = model(features)
             loss = criterion(predicts, ground_truth)
@@ -28,7 +28,7 @@ def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer
             optimizer.step()
             print(i, loss.item())
             losses.append(loss.item())
-        print(sum(losses) / 100)
+        print(sum(losses))
     return losses
 
 
