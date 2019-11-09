@@ -12,7 +12,7 @@ def check_RGB(img):
     if len(img.shape) == 2: # check that image is RGB
         return False
     x = np.transpose(img, (2, 0, 1))
-    if min(x.shape[1], x.shape[2]) < 128: #check that image is large enought
+    if min(x.shape[1], x.shape[2]) < 134: #check that image is large enought
         return False
     return (((x[0] == x[1]) & (x[1] == x[2])) == False).sum() != 0
 
