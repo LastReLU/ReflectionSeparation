@@ -5,7 +5,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 from model import NetArticle
 import Image_DataSet as dtst
-import Collate as clt
 
 ALPHA = 0.9
 
@@ -48,8 +47,8 @@ def test(test_loader, model, criterion, alpha=ALPHA):
 
 
 def main():
-    n = 50 
-    m = 50
+    n = int(input('Indoor count: '))
+    m = int(input('Outdoor count: '))
 
     data = dtst.ImageDataSet(n, m)
 
