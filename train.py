@@ -1,63 +1,78 @@
 import numpy as np
+from comet_ml import Experiment
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from model import NetArticle
 import Image_DataSet as dtst
-ALPHA = 0.9
 
 
-def train(train_loader_indoor, train_loader_outdoor, model, criterion, optimizer, epochs=10, alpha=ALPHA):
-    losses = []
-    model.train()
-    for epoch in range(epochs):
+experiment = Experiment(api_key="3FVjB2xjP8kZyoywFZ6lLC5pC",
+                        project_name="reflection-separation", workspace="wibbn")
+
+hyper_params = {
+    'indoor_size': 50,
+    'outdoor_size': 50,
+    'input_size': (3, 128, 128),
+    'batch_size': 4,
+    'num_epochs': 10,
+    'learning_rate': 0.001
+}
+
+def get_batch(batch):
+    features = batch[:, 0, :, :, :]
+    target_transpose = batch[:, 1, :, :, :]
+    target_reflection = batch[:, 2, :, :, :]
+    target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
+    return features, target
+
+def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs']):
+    with experiment.train():
         losses = []
-        for i, batch in enumerate(zip(train_loader_indoor, train_loader_outdoor)):
-            batch_indoor, batch_outdoor = batch  # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 3, n, n), (bs, 3, n, n))
-            #print(len(batch), type(batch[0]), type(batch[1]), batch_indoor.shape, batch_outdoor.shape)
-            features_indoor, ground_truth_indoor = batch_indoor, batch_indoor
-            #   print(features_indoor)
-            features_outdoor, ground_truth_outdoor = batch_outdoor, batch_outdoor
-            features = alpha * features_indoor + (1 - alpha) * features_outdoor
-            ground_truth = th.Tensor(np.concatenate((ground_truth_indoor, ground_truth_outdoor), axis=1))
-            optimizer.zero_grad()
-            predicts = model(features)
-            loss = criterion(predicts, ground_truth)
-            loss.backward()
-            optimizer.step()
-            print(i, loss.item())
-            losses.append(loss.item())
-        print(sum(losses))
-    return losses
+        model.train()
+        step = 0
+        for epoch in range(epochs):
+            experiment.log_current_epoch(epoch)
+            losses = []
+            for i, batch in enumerate(train_loader):
+                # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 6, n, n), (bs, 6, n, n))
+                features, target = get_batch(batch)
+                optimizer.zero_grad()
+                predicts = model(features)
+                loss = criterion(predicts, target)
+                loss.backward()
+                optimizer.step()
+                print(i, loss.item())
+                experiment.log_metric('loss', loss.item(), step=step)
+                step += 1
+                losses.append(loss.item())
+            print('batchend', sum(losses))
+        return losses
 
 
-def test(test_loader, model, criterion, alpha=ALPHA):
+def test(test_loader, model, criterion):
     losses = []
     model.eval()
-    for i, batch in enumerate(zip(test_loader_indoor, test_loader_outdoor)):
-        batch_indoor, batch_outdoor = batch
-        features_indoor, ground_truth_indoor = batch_indoor
-        features_outdoor, ground_truth_outdoor = batch_outdoor
-        features = alpha * features_indoor + (1 - alpha) * features_outdoor
-        ground_truth = np.concatenate((ground_truth_indoor, ground_truth_outdoor), axis=1)
-
+    for i, batch in enumerate(test_loader):
+        features, target = get_batch(batch)
         predicts = model(features)
-        loss = criterion(predicts, ground_truth)
+        loss = criterion(predicts, target)
         losses.append(loss.item())
 
     return losses
 
 
 def main():
-    n, m = 50, 50
-    train_loader_outdoor = th.utils.data.DataLoader(dtst.ImageDataSet('outdoor', n), batch_size=4)
-    train_loader_indoor = th.utils.data.DataLoader(dtst.ImageDataSet('indoor', m), batch_size=4)
+    experiment.log_parameters(hyper_params)
+
+    data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
+    train_loader = th.utils.data.DataLoader(data, batch_size=hyper_params['batch_size'])
 
     net = NetArticle()
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.001)
-    losses = train(train_loader_indoor, train_loader_outdoor, net, criterion, optimizer)
+    optimizer = optim.Adam(net.parameters(), lr=hyper_params['learning_rate'])
+    losses = train(train_loader, net, criterion, optimizer)
     #losses = test(test_loader, net, criterion)
     print(losses)
 

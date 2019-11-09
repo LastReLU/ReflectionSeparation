@@ -1,5 +1,5 @@
 .env
 .vscode
-*door/
 data/
-blur.py
+*.ipynb*
+__pycache__
