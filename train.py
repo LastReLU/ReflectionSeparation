@@ -24,8 +24,8 @@ def get_batch(batch):
     features = batch[:, 0, :, :, :]
     target_transpose = batch[:, 1, :, :, :]
     target_reflection = batch[:, 2, :, :, :]
-    target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
-    return features, target
+    #target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
+    return features, target_transpose, target_reflection
 
 def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs']):
     with experiment.train():
@@ -37,11 +37,16 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
             losses = []
             for i, batch in enumerate(train_loader):
                 # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 6, n, n), (bs, 6, n, n))
-                features, target = get_batch(batch)
+                features, target_transmission, target_reflection = get_batch(batch)
                 optimizer.zero_grad()
-                predicts = model(features)
-                loss = criterion(predicts, target)
+                #predicts = model(features)
+                predict_transmission, predict_reflection = model(features)
+                #loss = criterion(predicts, target)
+                loss1 = criterion(predict_transmission, target_transmission)
+                loss2 = criterion(predict_reflection, target_reflection)
+                loss = loss1 + loss2
                 loss.backward()
+                #print(loss.grad)
                 optimizer.step()
                 print(i, loss.item())
                 experiment.log_metric('loss', loss.item(), step=step)

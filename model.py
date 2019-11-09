@@ -72,7 +72,7 @@ class NetArticle(nn.Module):
         up = F.relu(up)
         return up
 
-    def final(self, x):
+    def head12(self, x):
         x = self.conv_final_1234(x)
         x = F.relu(x)
         x = self.conv_final_1234(x)
@@ -90,8 +90,9 @@ class NetArticle(nn.Module):
     def forward(self, x):
         x = self.intro(x)
         x = self.body(x)
-        x = self.final(x)
-        return x
+        transmission = self.head12(x)
+        reflection = self.head12(x)
+        return transmission, reflection
 
 
 class NetToy(nn.Module):
