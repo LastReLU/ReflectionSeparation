@@ -23,11 +23,10 @@ class ImageDataSet(Dataset):
         self.first_ref_pos = first_ref_pos
         self.second_ref_pos = second_ref_pos
         self.blur = blur
-        self.iter = 0
 
     def __random_prop(self, seed): # activate if random == True
         np.random.seed(seed)
-        self.alpha = np.random.randint(75, 80 + 1) / 100
+        self.alpha = np.random.uniform(0.75, 0.8)
         np.random.seed(seed)
         pos = np.random.randint(7, size=4)
         self.first_ref_pos = (pos[0], pos[1])
@@ -115,7 +114,6 @@ class DataLoader():
         self.seed = seed
         self.transition_num = transition_num
         self.reflection_num = reflection_num
-        # self.split = split
         self.random = random
         self.batch_size = batch_size
 
@@ -142,8 +140,10 @@ class DataLoader():
 
     def __get_batch(self, id):
         stack = []
-        for t_id in self.transition_permutation[id*self.transition_num: (id+1)*self.transition_num]:
-            for r_id in self.reflection_permutation[id*self.reflection_num: (id+1)*self.reflection_num]:
+        np.random.seed(id)
+        r_split = np.random.randint(len(self.reflection_permutation) - self.reflection_num)
+        for t_id in self.transition_permutation[id*self.transition_num : (id+1)*self.transition_num]:
+            for r_id in self.reflection_permutation[r_split : r_split + self.reflection_num]:
                 data_id = self.dataset.r_len * t_id + r_id
                 stack.append(self.dataset[data_id])
         return stack
@@ -168,10 +168,3 @@ class DataLoader():
                 raise StopIteration
 
         return th.stack(batch)
-
-#     def __next__(self):
-#         if self.iter >= self.__len__():
-#             self.iter = 0
-#             raise StopIteration
-#         self.iter += 1
-#         return self.__getitem__(self.iter - 1)x
