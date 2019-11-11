@@ -7,13 +7,15 @@ import torch.optim as optim
 from model import NetArticle
 import Image_DataSet as dtst
 
+import config
 
-experiment = Experiment(api_key="3FVjB2xjP8kZyoywFZ6lLC5pC",
+
+experiment = Experiment(api_key=config.comet_ml_api,
                         project_name="reflection-separation", workspace="wibbn")
 
 hyper_params = {
-    'indoor_size': 50,
-    'outdoor_size': 50,
+    'indoor_size': 20,
+    'outdoor_size': 100,
     'input_size': (3, 128, 128),
     'batch_size': 4,
     'num_epochs': 10,
@@ -72,7 +74,7 @@ def main():
     experiment.log_parameters(hyper_params)
 
     data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
-    train_loader = th.utils.data.DataLoader(data, batch_size=hyper_params['batch_size'])
+    train_loader = dtst.DataLoader(data, 1, 18)
 
     net = NetArticle()
     criterion = nn.MSELoss()
