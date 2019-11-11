@@ -27,7 +27,7 @@ class NetArticle(nn.Module):
 
         self.conv_final_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
         self.conv_final_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
-        self.conv_final_6 = nn.Conv2d(16, 6, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
+        self.conv_final_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
         self.channels_x2 = nn.Conv2d(3, 6, kernel_size=1)
 
@@ -72,7 +72,7 @@ class NetArticle(nn.Module):
         up = F.relu(up)
         return up
 
-    def final(self, x):
+    def head12(self, x):
         x = self.conv_final_1234(x)
         x = F.relu(x)
         x = self.conv_final_1234(x)
@@ -90,8 +90,9 @@ class NetArticle(nn.Module):
     def forward(self, x):
         x = self.intro(x)
         x = self.body(x)
-        x = self.final(x)
-        return x
+        transmission = self.head12(x)
+        reflection = self.head12(x)
+        return transmission, reflection
 
 
 class NetToy(nn.Module):
