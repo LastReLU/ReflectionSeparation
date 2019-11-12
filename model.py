@@ -25,11 +25,13 @@ class NetArticle(nn.Module):
         self.conv_up_5 = nn.Conv2d(32, 32, kernel_size=5, padding=2)  # not 32. but 32 + 32 = 64 because of concat
         self.conv_up_6 = nn.Conv2d(32, 16, kernel_size=5, padding=2)
 
-        self.conv_final_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
-        self.conv_final_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
-        self.conv_final_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
+        self.conv_head1_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head1_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
+        self.conv_head1_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
-        #self.conv_1x1 = nn.Conv2d(3, 3, kernel_size=1)
+        self.conv_head2_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head2_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
+        self.conv_head2_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
     def intro(self, x):
         x = self.conv_intro_1(x)
@@ -73,25 +75,40 @@ class NetArticle(nn.Module):
         up = F.relu(up)
         return up
 
-    def head12(self, x):
-        x = self.conv_final_1234(x)
+    def head1(self, x):
+        x = self.conv_head1_1234(x)
         x = F.relu(x)
-        x = self.conv_final_1234(x)
+        x = self.conv_head1_1234(x)
         x = F.relu(x)
-        x = self.conv_final_1234(x)
+        x = self.conv_head1_1234(x)
         x = F.relu(x)
-        x = self.conv_final_1234(x)
+        x = self.conv_head1_1234(x)
         x = F.relu(x)
-        x = self.conv_final_5(x)
+        x = self.conv_head1_5(x)
         x = F.relu(x)
-        x = self.conv_final_6(x)
+        x = self.conv_head1_6(x)
+        x = F.relu(x)
+        return x
+
+    def head2(self, x):
+        x = self.conv_head2_1234(x)
+        x = F.relu(x)
+        x = self.conv_head2_1234(x)
+        x = F.relu(x)
+        x = self.conv_head2_1234(x)
+        x = F.relu(x)
+        x = self.conv_head2_1234(x)
+        x = F.relu(x)
+        x = self.conv_head2_5(x)
+        x = F.relu(x)
+        x = self.conv_head2_6(x)
         x = F.relu(x)
         return x
 
     def forward(self, x):
         x = self.intro(x)
         x = self.body(x)
-        transmission = self.head12(x)
-        reflection = self.head12(x)
+        transmission = self.head1(x)
+        reflection = self.head2(x)
         return transmission, reflection
 

@@ -39,24 +39,25 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
             experiment.log_current_epoch(epoch)
             losses = []
             for i, batch in enumerate(train_loader):
-                # batch.shape ((bs, 3, n, n), (bs, 3, n, n)) ((bs, 6, n, n), (bs, 6, n, n))
                 features, target_transmission, target_reflection = get_batch(batch)
                 optimizer.zero_grad()
-                #predicts = model(features)
                 predict_transmission, predict_reflection = model(features)
-                #loss = criterion(predicts, target)
+                print('__________________________________')
+                print(model.conv_down_6.weight[0])
+                print(target_transmission[0])
+                print(predict_transmission[0])
                 loss1 = criterion(predict_transmission, target_transmission)
                 loss2 = criterion(predict_reflection, target_reflection)
-                loss = loss1 + loss2
+                loss = loss2 + loss1
+                print("LOSSES: ", loss1, loss2, loss, "END")
                 loss.backward()
-                #print(loss.grad)
                 optimizer.step()
                 print(epoch, step, loss.item(), sum(sum(model.conv_down_6.weight.grad)))
                 experiment.log_metric('loss', loss.item(), step=step)
                 step += 1
                 losses.append(loss.item())
                 if save:
-                    th.save(model, 'weights.hdf5')
+                    th.save(model, 'weights2.hdf5')
             print('epoch end', sum(losses))
         return losses
 
@@ -69,6 +70,7 @@ if __name__ == "__main__":
     train_loader = dtst.DataLoader(data, 1, 18)
 
     net = NetArticle()
+    #net = th.load("weights2.hdf5")
     criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters(), lr=hyper_params['learning_rate'])
     losses = train(train_loader, net, criterion, optimizer)
