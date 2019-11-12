@@ -29,7 +29,7 @@ class NetArticle(nn.Module):
         self.conv_final_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
         self.conv_final_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
-        self.channels_x2 = nn.Conv2d(3, 6, kernel_size=1)
+        #self.conv_1x1 = nn.Conv2d(3, 3, kernel_size=1)
 
     def intro(self, x):
         x = self.conv_intro_1(x)
@@ -43,6 +43,7 @@ class NetArticle(nn.Module):
         x = self.conv_intro_3456(x)
         x = F.relu(x)
         x = self.conv_intro_3456(x)
+        x = F.relu(x)
         return x
 
     def body(self, x):
@@ -93,13 +94,4 @@ class NetArticle(nn.Module):
         transmission = self.head12(x)
         reflection = self.head12(x)
         return transmission, reflection
-
-
-class NetToy(nn.Module):
-    def __init__(self):
-        super(NetToy, self).__init__()
-        self.channels_x2 = nn.Conv2d(3, 6, 1)
-    def forward(self, x):
-        x = self.channels_x2(x)
-        return x
 
