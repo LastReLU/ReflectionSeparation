@@ -49,7 +49,7 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
                 loss.backward()
                 #print(loss.grad)
                 optimizer.step()
-                print(epoch, step, loss.item(), sum(sum(model.conv_dwon_6.weight.grad)))
+                print(epoch, step, loss.item(), sum(sum(model.conv_down_6.weight.grad)))
                 experiment.log_metric('loss', loss.item(), step=step)
                 step += 1
                 losses.append(loss.item())
@@ -59,7 +59,7 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
         return losses
 
 
-if __init__ == "__main__":
+if __name__ == "__main__":
     print(th.__version__)
     experiment.log_parameters(hyper_params)
 
