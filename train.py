@@ -27,7 +27,8 @@ def get_batch(batch):
     #target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
     return features, target_transpose, target_reflection
 
-def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs']):
+
+def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs'], save=True):
     with experiment.train():
         losses = []
         model.train()
@@ -48,27 +49,18 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
                 loss.backward()
                 #print(loss.grad)
                 optimizer.step()
-                print(i, loss.item())
+                print(epoch, step, loss.item(), sum(sum(model.conv_dwon_6.weight.grad)))
                 experiment.log_metric('loss', loss.item(), step=step)
                 step += 1
                 losses.append(loss.item())
-            print('batchend', sum(losses))
+                if save:
+                    th.save(model, 'weights.hdf5')
+            print('epoch end', sum(losses))
         return losses
 
 
-def test(test_loader, model, criterion):
-    losses = []
-    model.eval()
-    for i, batch in enumerate(test_loader):
-        features, target = get_batch(batch)
-        predicts = model(features)
-        loss = criterion(predicts, target)
-        losses.append(loss.item())
-
-    return losses
-
-
-def main():
+if __init__ == "__main__":
+    print(th.__version__)
     experiment.log_parameters(hyper_params)
 
     data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
@@ -84,7 +76,3 @@ def main():
     img1 = th.Tensor(np.ones((1, 3, 128, 128)))
     print("Before: ", img1.shape)
     print("After:  ", net(img1).shape)
-
-
-print(th.__version__)
-main()
