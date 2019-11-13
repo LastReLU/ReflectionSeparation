@@ -25,28 +25,37 @@ def get_batch(batch):
     return features, target_transpose, target_reflection
 
 
-def test(test_loader, model, criterion=cv2.PSNR):
+def test(test_loader, model, criterion):
     losses = []
     model.eval()
     step = 0
     for i, batch in enumerate(test_loader):
         features, target_transmission, target_reflection = get_batch(batch)
         predict_transmission, predict_reflection = model(features)
-        print(predict_transmission[0].shape)
-        if i < 5:
-            print(target_transmission[0])
-            #a = np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0))# * 255
-            #a = predict_transmission[0]# * 255
-            #print(a)
-            cv2.imwrite("imgs/transmission" + str(i) + ".png", (np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
-            cv2.imwrite("imgs/reflection" + str(i) + ".png", (np.transpose(predict_reflection[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
+        if i < 1:
+            print("-------------------------------")
+            a = (np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int)
+            b = (np.transpose(target_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int)
+            print(a - b)
+            print(predict_transmission[0] - target_transmission[0])
+
+            '''
+            writer = open("hello.txt", 'w')
+            for i in range(20, 30):
+                for j in range(20, 30):
+                    print(a[i][j][0], file=writer)
+            '''
+            print("-------------------------------")
+            #cv2.imwrite("imgs/target_trans" + str(i) + ".png", (np.transpose(target_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
+            #cv2.imwrite("imgs/transmission" + str(i) + ".png", (np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
+            #cv2.imwrite("imgs/reflection" + str(i) + ".png", (np.transpose(predict_reflection[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
         loss1 = criterion(predict_transmission, target_transmission)
         loss2 = criterion(predict_reflection, target_reflection)
         loss = loss1 + loss2
-        losses.append(loss)
-        print(loss)
+        losses.append(loss.item())
+        print(loss1.item())
         step += 1
-    print(sum(losses))
+    return losses
 
 
 if __name__ == "__main__":
@@ -56,7 +65,8 @@ if __name__ == "__main__":
     test_loader = dtst.DataLoader(data, 1, 18, test=True)
 
     #net = NetArticle()
-    net = th.load("weights2.hdf5")
-    losses = test(test_loader, net, criterion=nn.MSELoss())
-    print(losses)
+    net = th.load("weights3.hdf5")
+    criterion = nn.MSELoss()
+    losses = test(test_loader, net, criterion)
+    print('####', losses)
 

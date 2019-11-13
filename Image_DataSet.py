@@ -104,6 +104,7 @@ class ImageDataSet(Dataset):
 
         item = np.array([features_img, transition_crop, reflection_layer])
         item = th.Tensor(item / 255)
+        #item = th.Tensor(item)
         return item
 
 class DataLoader():
