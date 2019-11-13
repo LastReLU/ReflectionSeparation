@@ -36,10 +36,10 @@ def test(test_loader, model, criterion=cv2.PSNR):
         if i < 5:
             print(target_transmission[0])
             #a = np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0))# * 255
-            a = predict_transmission[0]# * 255
-            print(a)
-            cv2.imwrite("imgs/transmission" + str(i) + ".png", np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0)) * 255)
-            cv2.imwrite("imgs/reflection" + str(i) + ".png", np.transpose(predict_reflection[0].detach().numpy(), (1, 2, 0)) * 255)
+            #a = predict_transmission[0]# * 255
+            #print(a)
+            cv2.imwrite("imgs/transmission" + str(i) + ".png", (np.transpose(predict_transmission[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
+            cv2.imwrite("imgs/reflection" + str(i) + ".png", (np.transpose(predict_reflection[0].detach().numpy(), (1, 2, 0)) * 255).astype(int))
         loss1 = criterion(predict_transmission, target_transmission)
         loss2 = criterion(predict_reflection, target_reflection)
         loss = loss1 + loss2
@@ -55,7 +55,8 @@ if __name__ == "__main__":
     data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
     test_loader = dtst.DataLoader(data, 1, 18, test=True)
 
-    net = NetArticle()
-    losses = test(test_loader, net, criterion=nn.MSELoss)
+    #net = NetArticle()
+    net = th.load("weights2.hdf5")
+    losses = test(test_loader, net, criterion=nn.MSELoss())
     print(losses)
 

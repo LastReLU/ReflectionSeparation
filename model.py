@@ -9,7 +9,10 @@ class NetArticle(nn.Module):
         super(NetArticle, self).__init__()
         self.conv_intro_1 = nn.Conv2d(3, 16, kernel_size=9, padding=4)
         self.conv_intro_2 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
-        self.conv_intro_3456 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_intro_3 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_intro_4 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_intro_5 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_intro_6 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
 
         self.conv_down_1 = nn.Conv2d(16, 32, kernel_size=5, padding=2)
         self.conv_down_2 = nn.Conv2d(32, 32, kernel_size=5, padding=2) # 32 to concat
@@ -25,11 +28,17 @@ class NetArticle(nn.Module):
         self.conv_up_5 = nn.Conv2d(32, 32, kernel_size=5, padding=2)  # not 32. but 32 + 32 = 64 because of concat
         self.conv_up_6 = nn.Conv2d(32, 16, kernel_size=5, padding=2)
 
-        self.conv_head1_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head1_1 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head1_2 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head1_3 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head1_4 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
         self.conv_head1_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
         self.conv_head1_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
-        self.conv_head2_1234 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head2_1 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head2_2 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head2_3 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
+        self.conv_head2_4 = nn.Conv2d(16, 16, kernel_size=5, padding=2)
         self.conv_head2_5 = nn.Conv2d(16, 16, kernel_size=9, padding=4)
         self.conv_head2_6 = nn.Conv2d(16, 3, kernel_size=9, padding=4) # not 16, 3 as two first layers. but 16, 6 because of concat
 
@@ -38,13 +47,13 @@ class NetArticle(nn.Module):
         x = F.relu(x)
         x = self.conv_intro_2(x)
         x = F.relu(x)
-        x = self.conv_intro_3456(x)
+        x = self.conv_intro_3(x)
         x = F.relu(x)
-        x = self.conv_intro_3456(x)
+        x = self.conv_intro_4(x)
         x = F.relu(x)
-        x = self.conv_intro_3456(x)
+        x = self.conv_intro_5(x)
         x = F.relu(x)
-        x = self.conv_intro_3456(x)
+        x = self.conv_intro_6(x)
         x = F.relu(x)
         return x
 
@@ -76,13 +85,13 @@ class NetArticle(nn.Module):
         return up
 
     def head1(self, x):
-        x = self.conv_head1_1234(x)
+        x = self.conv_head1_1(x)
         x = F.relu(x)
-        x = self.conv_head1_1234(x)
+        x = self.conv_head1_2(x)
         x = F.relu(x)
-        x = self.conv_head1_1234(x)
+        x = self.conv_head1_3(x)
         x = F.relu(x)
-        x = self.conv_head1_1234(x)
+        x = self.conv_head1_4(x)
         x = F.relu(x)
         x = self.conv_head1_5(x)
         x = F.relu(x)
@@ -91,13 +100,13 @@ class NetArticle(nn.Module):
         return x
 
     def head2(self, x):
-        x = self.conv_head2_1234(x)
+        x = self.conv_head2_1(x)
         x = F.relu(x)
-        x = self.conv_head2_1234(x)
+        x = self.conv_head2_2(x)
         x = F.relu(x)
-        x = self.conv_head2_1234(x)
+        x = self.conv_head2_3(x)
         x = F.relu(x)
-        x = self.conv_head2_1234(x)
+        x = self.conv_head2_4(x)
         x = F.relu(x)
         x = self.conv_head2_5(x)
         x = F.relu(x)
