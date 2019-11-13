@@ -1,17 +1,14 @@
+import argparse
+from pathlib import Path
 import numpy as np
-from comet_ml import Experiment
-import torch as th
-import torch.nn as nn
-import torch.nn.functional as F
+import torch
 import torch.optim as optim
-from model import NetArticle
-import Image_DataSet as dtst
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
-import config
+import model
+import data
 
-
-experiment = Experiment(api_key=config.comet_ml_api,
-                        project_name="reflection-separation", workspace="wibbn")
 
 hyper_params = {
     'indoor_size': 5,
@@ -22,62 +19,65 @@ hyper_params = {
     'learning_rate': 0.01
 }
 
-def get_batch(batch):
-    features = batch[:, 0, :, :, :]
-    target_transpose = batch[:, 1, :, :, :]
-    target_reflection = batch[:, 2, :, :, :]
-    #target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
-    return features, target_transpose, target_reflection
 
-
-def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs'], save=True, device=th.device("cuda")):
-    with experiment.train():
-        losses = []
-        model.train()
-        step = 0
-        for epoch in range(epochs):
-            experiment.log_current_epoch(epoch)
-            losses = []
-            for i, batch in enumerate(train_loader):
-                features, target_transmission, target_reflection = get_batch(batch)
-                features = features.to(device)
-                target_transmission = target_transmission.to(device)
-                optimizer.zero_grad()
-                #predict_transmission, predict_reflection = model(features)
-                predict_transmission = model(features)
-                print('__________________________________')
-                #print(predict_transmission[0])
-                #print(target_transmission[0] - predict_transmission[0])
-                loss = criterion(predict_transmission, target_transmission)
-                #loss2 = criterion(predict_reflection, target_reflection)
-                #loss = loss1 + loss2
-                #print("LOSSES: ", loss1, loss)
-                loss.backward()
-                optimizer.step()
-                print(epoch, step, loss.item(), th.mean(model.conv_down_6.weight.grad[0][0]), th.mean(model.conv_intro_2.weight.grad[0][0]))
-                experiment.log_metric('loss', loss.item(), step=step)
-                step += 1
-                losses.append(loss.item())
-                if save:
-                    th.save(model, 'weights3.hdf5')
-            print('epoch end', sum(losses))
-        return losses
+def _parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument('--logs', default='./runs/0')
+    p.add_argument('--batch_size', default=64, type=int)
+    p.add_argument('--epochs', default=10, type=int)
+    return p.parse_args()
 
 
 if __name__ == "__main__":
-    print(th.__version__)
-    experiment.log_parameters(hyper_params)
-    #device = th.device("cuda" if th.cuda().is_available() else "cpu")
-    device = th.device("cuda")
-    print(device)
-    data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
-    train_loader = dtst.DataLoader(data, 1, 18)
+    args = _parse_args()
+    device = torch.device("cuda")
 
-    net = NetArticle().to(device)
-    #net = th.load("weights2.hdf5")
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=hyper_params['learning_rate'])
-    #optimizer = optim.SGD(net.parameters(), lr=hyper_params['learning_rate'])
-    losses = train(train_loader, net, criterion, optimizer)
-    print(losses)
+    indoor_files = data.filter_images(
+        [str(t) for t in Path("./data/indoor_row/").glob("*.jpg")],
+        limit=100)
+    outdoor_files = data.filter_images(
+        [str(t) for t in Path("./data/outdoor_row/").glob("*.jpg")],
+        limit=100)
+    print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
+    # todo: split into train and test
+    # todo: make evaluation dataloaders
+    trainloader_a = DataLoader(data.DummyDataset(indoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_b = DataLoader(data.DummyDataset(outdoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
+
+    model = model.DummyModel().to(device)
+    opt = optim.Adam(model.parameters(), lr=3e-4)
+
+    train_writer = SummaryWriter(args.logs)
+    log = []
+
+    model.train()
+    # let's fix the batch and iterate over it
+    for a, b in zip(trainloader_a, trainloader_b):
+        batch = data.all_transform(a, b)
+        break
+
+    for step in range(1000):
+        info = model.compute_all(batch, device=device)
+        opt.zero_grad()
+        info['loss'].backward()
+        opt.step()
+
+        # norm of grads for every weight
+        for name, p in model.named_parameters():
+            if 'weight' in name:
+                train_writer.add_scalar("grad_" + name, np.linalg.norm(p.grad.data.cpu().numpy()), global_step=step)
+
+        log.append(info['metrics'])
+        print(info['metrics'])
+
+        for k, v in batch.items():
+            if k != 'alpha':
+                for i in range(len(v)):
+                    train_writer.add_image("{}_{}".format(k, i), v[0], global_step=step)
+
+        for k, v in info['metrics'].items():
+            train_writer.add_scalar(k, v, global_step=step)
+
+        # todo: add evaluation loop
+        model.eval()

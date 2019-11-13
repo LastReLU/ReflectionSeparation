@@ -2,6 +2,8 @@ import os
 import tarfile
 import requests
 from bs4 import BeautifulSoup
+from tqdm.auto import tqdm
+
 
 def get_outdoor_img(id, dir_name):
     url = 'https://www.hel-looks.com/big-photos/{}.jpg'.format(id)
@@ -20,7 +22,7 @@ def outdoor(dir_name):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     links = soup.find_all('a', {'class': 'v'})
-    for link in links:
+    for link in tqdm(links):
         img_id = link.get('href')[1:]
         get_outdoor_img(img_id, dir_name)
 
@@ -36,7 +38,7 @@ def indoor(dir_name):
     tar.close()
 
     for current_dir, dirs, files in os.walk('data/indoor_img'):
-        for file in files:
+        for file in tqdm(files):
             replace(file, current_dir, 'data/{}'.format(dir_name))
         if current_dir != 'data/indoor_img' and current_dir != 'data/indoor_img/Images':
             os.rmdir(current_dir)
