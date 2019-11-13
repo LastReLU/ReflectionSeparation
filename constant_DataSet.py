@@ -15,7 +15,7 @@ class const_DataSet():
         self.path_transmission = path + '/transmission'
 
     def __len__(self):
-        return 5 * 8 - self.shift
+        return 5000 * 18 - self.shift
 
     def __getitem__(self, id):
         if self.test:

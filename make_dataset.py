@@ -6,7 +6,7 @@ import torch as th
 import torch.nn.functional as F
 import cv2
 
-MAX_OUTDOOR = 207 #2700
+MAX_OUTDOOR = 2700
 MAX_INDOOR = 5000
 
 cur_path = os.getcwd() + '/data' # path to current directory
