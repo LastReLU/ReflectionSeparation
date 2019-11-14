@@ -34,9 +34,7 @@ def fixed_batch(model):
     for a, b in zip(trainloader_a, trainloader_b):
         #print(a['img'].shape, type(b))
         batch = data.all_transform(a, b)
-        #print(batch.shape)
         break
-    #exit()
     for step in range(1000):
         info = model.compute_all(batch, step, device=device)
         opt.zero_grad()
@@ -73,10 +71,12 @@ def train(epochs):
             opt.step()
 
             # norm of grads for every weight
+
             """
             for name, p in model.named_parameters():
                 if 'weight' in name:
                     train_writer.add_scalar("grad_" + name, np.linalg.norm(p.grad.data.cpu().numpy()), global_step=step)
+            #if step % 10: # save not all images but each n'th
             for k, v in batch.items():
                 if k != 'alpha':
                     for i in range(len(v)):
@@ -85,32 +85,58 @@ def train(epochs):
             for k, v in info['metrics'].items():
                 train_writer.add_scalar(k, v, global_step=step)
             """
-            print(step, i, info['loss'])
+
+            #print(step, i, info['loss'])
             model.eval()
 
+def test():
+    step = 0
+    for i, (a, b) in enumerate(zip(testloader_a, testloader_b)):
+        batch = data.all_transform(a, b)
+        info = model.compute_all(batch, step, device=device)
+        print(i, info)
 
 if __name__ == "__main__":
     args = _parse_args()
     device = torch.device("cuda")
 
+
+    # 4000 for indoor train 1400 for indoor test, 2000 for outdoor train 700 for outdoor test
     indoor_files = data.filter_images(
         [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
-        limit=16)
+        limit=5400)
     outdoor_files = data.filter_images(
         [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
-        limit=16)
+        limit=2700)
+    indoor_files = np.array(indoor_files)
+    outdoor_files = np.array(outdoor_files)
+
+    indoor_train_ids = np.random.choice(5400, 4000)
+    indoor_test_ids = ~np.isin(np.arange(5400), indoor_train_ids)
+    outdoor_train_ids = np.random.choice(2700, 2000)
+    outdoor_test_ids = ~np.isin(np.arange(2700), outdoor_train_ids)
+
+    indoor_train = indoor_files[indoor_train_ids]
+    indoor_test = indoor_files[indoor_test_ids]
+    outdoor_train = outdoor_files[outdoor_train_ids]
+    outdoor_test = outdoor_files[outdoor_test_ids]
+
+    #print(indoor_train_ids, indoor_test_ids, outdoor_train_ids, outdoor_test_ids)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
-    # todo: split into train and test
     # todo: make evaluation dataloaders
-    trainloader_a = DataLoader(data.DummyDataset(indoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
-    trainloader_b = DataLoader(data.DummyDataset(outdoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_a = DataLoader(data.DummyDataset(indoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_b = DataLoader(data.DummyDataset(outdoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
+    testloader_a = DataLoader(data.DummyDataset(indoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    testloader_b = DataLoader(data.DummyDataset(outdoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
     #model = model.DummyModel().to(device)
     model = model.DummyModel()
     opt = optim.Adam(model.parameters(), lr=3e-4)
 
-    train_writer = SummaryWriter(args.logs)
+    #train_writer = SummaryWriter(args.logs)
 
     #fixed_batch(model)
     train(epochs=args.epochs)
+    test()
+
