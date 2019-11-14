@@ -15,7 +15,7 @@ hyper_params = {
     'outdoor_size': 25,
     'input_size': (3, 128, 128),
     'batch_size': 4,
-    'num_epochs': 10,
+    'num_epochs': 3,
     'learning_rate': 0.01
 }
 
@@ -86,7 +86,7 @@ def train(epochs):
                 train_writer.add_scalar(k, v, global_step=step)
             """
 
-            #print(step, i, info['loss'])
+            print(step, i, info['loss'])
             model.eval()
 
 def test():
@@ -102,26 +102,26 @@ if __name__ == "__main__":
 
 
     # 4000 for indoor train 1400 for indoor test, 2000 for outdoor train 700 for outdoor test
+
     indoor_files = data.filter_images(
         [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
         limit=5400)
     outdoor_files = data.filter_images(
         [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
         limit=2700)
-    indoor_files = np.array(indoor_files)
-    outdoor_files = np.array(outdoor_files)
+    indoor_files = np.array(16 * indoor_files)
+    outdoor_files = np.array(32 * outdoor_files)
 
-    indoor_train_ids = np.random.choice(5400, 4000)
-    indoor_test_ids = ~np.isin(np.arange(5400), indoor_train_ids)
-    outdoor_train_ids = np.random.choice(2700, 2000)
-    outdoor_test_ids = ~np.isin(np.arange(2700), outdoor_train_ids)
+    indoor_train_ids = np.random.choice(16 * 5400, 16 * 4000, replace=False)
+    indoor_test_ids = ~np.isin(np.arange(16 * 5400), indoor_train_ids)
+    outdoor_train_ids = np.random.choice(32 * 2700, 32 * 2000, replace=False)
+    outdoor_test_ids = ~np.isin(np.arange(32 * 2700), outdoor_train_ids)
 
     indoor_train = indoor_files[indoor_train_ids]
     indoor_test = indoor_files[indoor_test_ids]
     outdoor_train = outdoor_files[outdoor_train_ids]
     outdoor_test = outdoor_files[outdoor_test_ids]
 
-    #print(indoor_train_ids, indoor_test_ids, outdoor_train_ids, outdoor_test_ids)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
     # todo: make evaluation dataloaders
@@ -137,6 +137,6 @@ if __name__ == "__main__":
     #train_writer = SummaryWriter(args.logs)
 
     #fixed_batch(model)
-    train(epochs=args.epochs)
+    train(args.epochs)
     test()
 
