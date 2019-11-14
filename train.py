@@ -10,16 +10,6 @@ import model
 import data
 
 
-hyper_params = {
-    'indoor_size': 5,
-    'outdoor_size': 25,
-    'input_size': (3, 128, 128),
-    'batch_size': 4,
-    'num_epochs': 10,
-    'learning_rate': 0.01
-}
-
-
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--logs', default='./runs/0')
@@ -33,10 +23,10 @@ if __name__ == "__main__":
     device = torch.device("cuda")
 
     indoor_files = data.filter_images(
-        [str(t) for t in Path("./data/indoor_row/").glob("*.jpg")],
+        [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
         limit=100)
     outdoor_files = data.filter_images(
-        [str(t) for t in Path("./data/outdoor_row/").glob("*.jpg")],
+        [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
         limit=100)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
@@ -52,32 +42,32 @@ if __name__ == "__main__":
     log = []
 
     model.train()
-    # let's fix the batch and iterate over it
-    for a, b in zip(trainloader_a, trainloader_b):
-        batch = data.all_transform(a, b)
-        break
-
     for step in range(1000):
-        info = model.compute_all(batch, device=device)
-        opt.zero_grad()
-        info['loss'].backward()
-        opt.step()
+        for i, (a, b) for enumerate(zip(traainloader_a, trainloader_b)):
+            batch = data.all_transform(a, b)
+            info = model.compute_all(batch, device=device)
+            opt.zero_grad()
+            info['loss'].backward()
+            opt.step()
 
-        # norm of grads for every weight
-        for name, p in model.named_parameters():
-            if 'weight' in name:
-                train_writer.add_scalar("grad_" + name, np.linalg.norm(p.grad.data.cpu().numpy()), global_step=step)
+            # norm of grads for every weight
+            '''
+            for name, p in model.named_parameters():
+                if 'weight' in name:
+                    train_writer.add_scalar("grad_" + name, np.linalg.norm(p.grad.data.cpu().numpy()), global_step=step)
 
-        log.append(info['metrics'])
-        print(info['metrics'])
+            log.append(info['metrics'])
+            print(step, info['metrics'])
 
-        for k, v in batch.items():
-            if k != 'alpha':
-                for i in range(len(v)):
-                    train_writer.add_image("{}_{}".format(k, i), v[0], global_step=step)
+            for k, v in batch.items():
+                if k != 'alpha':
+                    for i in range(len(v)):
+                        train_writer.add_image("{}_{}".format(k, i), v[0], global_step=step)
 
-        for k, v in info['metrics'].items():
-            train_writer.add_scalar(k, v, global_step=step)
-
+            for k, v in info['metrics'].items():
+                train_writer.add_scalar(k, v, global_step=step)
+            '''
+            torch.save(model, 'weights_new1.hdf5')
         # todo: add evaluation loop
         model.eval()
+

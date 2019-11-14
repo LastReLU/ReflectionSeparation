@@ -1,16 +1,23 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import scripts
 
 
 class UnetModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.convs = nn.Sequential(
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 5, padding=2),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 5, padding=2),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 5, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 5, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 5, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 5, padding=2),
             nn.ReLU(),
         )
 
@@ -57,6 +64,11 @@ class DummyModel(nn.Module):
         loss_refl = F.mse_loss(output['reflect'], reflected)
 
         loss = loss_refl + loss_trans
+
+        scripts.save(output['trans'], 'imgs')
+        scripts.save(batch['synthetic'], 'syns')
+        scripts.save(batch['alpha_transmitted'], 'alphas')
+        scripts.save(batch['reflected'], 'refs')
         # todo: add VGG L2
         return dict(
             loss=loss,
