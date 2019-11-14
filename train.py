@@ -65,7 +65,7 @@ def fixed_batch(model):
 def train(epochs):
     model.train()
     for step in range(epochs):
-        for a, b in zip(trainloader_a, trainloader_b):
+        for i, (a, b) in enumerate(zip(trainloader_a, trainloader_b)):
             batch = data.all_transform(a, b)
             info = model.compute_all(batch, step, device=device)
             opt.zero_grad()
@@ -73,6 +73,7 @@ def train(epochs):
             opt.step()
 
             # norm of grads for every weight
+            """
             for name, p in model.named_parameters():
                 if 'weight' in name:
                     train_writer.add_scalar("grad_" + name, np.linalg.norm(p.grad.data.cpu().numpy()), global_step=step)
@@ -83,6 +84,8 @@ def train(epochs):
 
             for k, v in info['metrics'].items():
                 train_writer.add_scalar(k, v, global_step=step)
+            """
+            print(step, i, info['loss'])
             model.eval()
 
 
@@ -92,10 +95,10 @@ if __name__ == "__main__":
 
     indoor_files = data.filter_images(
         [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
-        limit=100)
+        limit=16)
     outdoor_files = data.filter_images(
         [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
-        limit=100)
+        limit=16)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
     # todo: split into train and test
