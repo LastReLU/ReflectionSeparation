@@ -18,9 +18,10 @@ hyper_params = {
     'outdoor_size': 25,
     'input_size': (3, 128, 128),
     'batch_size': 4,
-    'num_epochs': 100,
+    'num_epochs': 1000,
     'learning_rate': 0.01
 }
+
 
 def get_batch(batch):
     features = batch[:, 0, :, :, :]
@@ -28,6 +29,9 @@ def get_batch(batch):
     target_reflection = batch[:, 2, :, :, :]
     #target = th.Tensor(np.concatenate((target_transpose, target_reflection), axis=1))
     return features, target_transpose, target_reflection
+
+
+def printgradnorm(self, )
 
 
 def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_epochs'], save=True):
@@ -40,7 +44,7 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
         #experiment.log_current_epoch(epoch)
         losses = []
         for i, batch in enumerate(train_loader):
-            print(batch.numpy().shape)
+            #print(batch.numpy().shape)
             features, target_transmission, target_reflection = get_batch(batch)
             """
             # print(i, prev is None)
@@ -53,7 +57,7 @@ def train(train_loader, model, criterion, optimizer, epochs=hyper_params['num_ep
             target_transmission = target_transmission
             optimizer.zero_grad()
             #predict_transmission, predict_reflection = model(features)
-            predict_transmission = model(features)
+            predict_transmission = model(features)#['trans']
             #print('__________________________________')
             #print(predict_transmission[0])
             #print(target_transmission[0] - predict_transmission[0])
@@ -82,7 +86,6 @@ if __name__ == "__main__":
     #print(device)
 
     net = NetArticle() # Sirius
-
     #net = small_model.DummyModel() #Alex
 
     data = dtst.ImageDataSet(hyper_params['indoor_size'], hyper_params['outdoor_size'])
