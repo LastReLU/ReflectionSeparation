@@ -13,7 +13,7 @@ import data
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--logs', default='./runs/0')
-    p.add_argument('--batch_size', default=4, type=int)
+    p.add_argument('--batch_size', default=48, type=int)
     p.add_argument('--epochs', default=150, type=int)
     return p.parse_args()
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     for step in range(args.epochs):
         for i, (a, b) in enumerate(zip(trainloader_a, trainloader_b)):
             batch = data.all_transform(a, b)
-            info = model.compute_all(batch)
+            info = model.compute_all(batch, device)
             opt.zero_grad()
             info['loss'].backward()
             opt.step()
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             for k, v in info['metrics'].items():
                 train_writer.add_scalar(k, v, global_step=step)
             '''
-            if step % 8 == 0 or step == 1:
-                torch.save(model, 'weights_andrey_v2_' + str(step) + '.hdf5')
+            if i % 100 = 0:
+                torch.save(model, './weights/lastrelu_v1.hdf5' + str(step) + ' ' + str(i) '.hdf5')
         # todo: add evaluation loop
     test()
