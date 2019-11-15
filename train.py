@@ -20,7 +20,7 @@ def _parse_args():
 
 if __name__ == "__main__":
     args = _parse_args()
-    device = torch.device("cuda")
+    #device = torch.device("cuda")
     '''
     indoor_files = data.filter_images(
         [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
@@ -61,12 +61,12 @@ if __name__ == "__main__":
     outdoor_train = outdoor_files[outdoor_train_ids]
     outdoor_test = outdoor_files[outdoor_test_ids]
 
-    trainloader_a = DataLoader(data.DummyDataset(indoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
-    trainloader_b = DataLoader(data.DummyDataset(outdoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_a = DataLoader(data.DummyDataset(indoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_b = DataLoader(data.DummyDataset(outdoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
     testloader_a = DataLoader(data.DummyDataset(indoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
     testloader_b = DataLoader(data.DummyDataset(outdoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
-    model = model.DummyModel().to(device)
+    model = model.DummyModel()#.to(device)
     opt = optim.Adam(model.parameters(), lr=3e-4)
 
     train_writer = SummaryWriter(args.logs)
