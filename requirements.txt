@@ -8,7 +8,7 @@ numpy==1.16.5
 opencv-python==4.1.1.26
 pep8==1.7.1
 # Pillow==6.2.0
-https://download.pytorch.org/whl/cpu/torch-1.0.2.post2-cp36-cp36m-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torch-1.0.1.post2-cp36-cp36m-linux_x86_64.whl
 torchvision==0.4.2
 tqdm==4.36.1
 gunicorn==20.0.0
