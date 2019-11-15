@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+# import save_img
 
 
 class UnetModel(nn.Module):
@@ -56,12 +57,23 @@ class DummyModel(nn.Module):
         loss_trans = F.mse_loss(output['trans'], alpha_transmitted)
         loss_refl = F.mse_loss(output['reflect'], reflected)
 
+        # save_img.save(output['trans'], 'trans')
+
         loss = loss_refl + loss_trans
         # todo: add VGG L2
         return dict(
             loss=loss,
             metrics=dict(
                 mse_trans=loss_trans.item(),
-                mse_refl=loss_refl.item(),
+                mse_refl=loss_refl.item()
             )
+        )
+
+    def predict(self, img):
+        synthetic = img
+        output = self.forward(synthetic)
+
+        return dict(
+            img_trans=output['trans'],
+            img_refl=output['reflect']
         )

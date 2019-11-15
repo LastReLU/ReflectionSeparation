@@ -1,5 +1,12 @@
-.env
-.vscode
+# develop
+.env/
+.vscode/
+__pycache__/
+runs/
+
+# data
 data/
 *.ipynb*
-__pycache__
+
+#config
+config.py

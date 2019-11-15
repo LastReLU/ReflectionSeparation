@@ -1,0 +1,76 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+    Reflection Separation
+{% endblock %}
+
+{% block scripts %}
+    {{ dropzone.load() }}
+    {{ dropzone.style('border: 2px dashed #346449; border-radius: 10px; font-size: 20pt; margin: 5% 10% 0% 10%; min-height: 200px;') }}
+    <script src="https://kit.fontawesome.com/350d3689ae.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block navbar %}
+    <!-- <nav class="navbar navbar-default">
+        ... здесь должна быть навигационная панель (см. полный код на GitHub) ...
+    </nav> -->
+    <nav class="navbar navbar-defaul" style="background-color: #a8dfc1;">
+        <a class="navbar-brand mr-auto" href="#" style="color: #346449;">Reflection Separation</a>
+        <ul class="nav navbar-nav navbar-left my-2 mr-2">
+            <li>
+                <a class="nav-link" style="color: #346449;" href="https://github.com/LastReLU/ReflectionSeparation">
+                    <i class="fab fa-github mr-1"></i> GitHub
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 text-center ">
+                    <h1 style="margin-top: 5%">Image Reflection Separator</h1>
+                    <h4 class="text-muted" style="margin-top: 2%">
+                        You can upload a few low resolution photos (128x128) here. This may take some time.
+                    </h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                {{ dropzone.create(action_view='index') }}
+            </div>
+        </div>
+        {% if is_post %}
+        <div class="row text-center" style="margin: 5% 0% 3% 0%">
+            <div class="col-sm-4">
+                <h3>Input</h3>
+            </div>
+            <div class="col-sm-4">
+                <h3>Transmission</h3>
+            </div>
+            <div class="col-sm-4">
+                <h3>Reflection</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                    {% for file_url in file_urls %}
+                            <img style="width: 100%; margin: 8px" src="{{ file_url[0] }}">
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                {% for file_url in trans_urls %}
+                    <img style="width: 100%; margin: 8px" src="{{ file_url[0] }}">
+                {% endfor %}
+            </div>
+            <div class="col-sm-4">
+                {% for file_url in refl_urls %}
+                    <img style="width: 100%; margin: 8px" src="{{ file_url[0] }}">
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

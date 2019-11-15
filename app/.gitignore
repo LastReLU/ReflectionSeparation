@@ -1,0 +1,5 @@
+# media files
+uploads/
+
+# models
+*.hdf5
