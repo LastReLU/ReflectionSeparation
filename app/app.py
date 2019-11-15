@@ -3,9 +3,12 @@ from flask_bootstrap import Bootstrap
 from flask_dropzone import Dropzone
 from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 import os
+# from boto.s3.connection import S3Connection
 
-import config
+# import config
 import get_img
+
+print(s3)
 
 
 app = Flask(__name__)
@@ -19,7 +22,7 @@ app.config['DROPZONE_ALLOWED_FILE_TYPE'] = 'image/*'
 app.config['DROPZONE_REDIRECT_VIEW'] = 'index'
 # Uploads settings
 app.config['UPLOADED_PHOTOS_DEST'] = os.getcwd() + '/uploads'
-app.config['SECRET_KEY'] = config.super_key
+app.config['SECRET_KEY'] = os.environ.get('SUPER_KEY', None)
 
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, photos)
