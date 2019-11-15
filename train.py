@@ -13,16 +13,9 @@ import data
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--logs', default='./runs/0')
-    p.add_argument('--batch_size', default=64, type=int)
+    p.add_argument('--batch_size', default=4, type=int)
     p.add_argument('--epochs', default=150, type=int)
     return p.parse_args()
-
-def test():
-    step = 0
-    for i, (a, b) in enumerate(zip(testloader_a, testloader_b)):
-        batch = data.all_transform(a, b)
-        info = model.compute_all(batch, device=device)
-        print(i, info)
 
 
 if __name__ == "__main__":
@@ -39,20 +32,29 @@ if __name__ == "__main__":
     '''
     # todo: split into train and test
     # todo: make evaluation dataloaders
+    indoor_size = 5400
+    outdoor_size = indoor_size // 2
+    multi_reflection = 16
+    indoor_train_size = 4000
+    outdoor_train_size = indoor_train_size // 2
+
     indoor_files = data.filter_images(
         [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
-        limit=5400)
+        limit=indoor_size)
     outdoor_files = data.filter_images(
         [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
-        limit=2700)
-    indoor_files = np.array(16 * indoor_files)
-    outdoor_files = np.array(32 * outdoor_files)
+        limit=outdoor_size)
+    indoor_files = np.array(multi_reflection * indoor_files)
+    outdoor_files = np.array(2 * multi_reflection * outdoor_files)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
-    indoor_train_ids = np.random.choice(16 * 5400, 16 * 4000, replace=False)
-    indoor_test_ids = ~np.isin(np.arange(16 * 5400), indoor_train_ids)
-    outdoor_train_ids = np.random.choice(32 * 2700, 32 * 2000, replace=False)
-    outdoor_test_ids = ~np.isin(np.arange(32 * 2700), outdoor_train_ids)
+    np.random.seed(228)
+    indoor_train_ids = np.random.choice(multi_reflection * indoor_size, multi_reflection * indoor_train_size,
+                                        replace=False)
+    indoor_test_ids = ~np.isin(np.arange(multi_reflection * indoor_size), indoor_train_ids)
+    outdoor_train_ids = np.random.choice(2 * multi_reflection * outdoor_size, 2 * multi_reflection * outdoor_train_size,
+                                         replace=False)
+    outdoor_test_ids = ~np.isin(np.arange(2 * multi_reflection * outdoor_size), outdoor_train_ids)
 
     indoor_train = indoor_files[indoor_train_ids]
     indoor_test = indoor_files[indoor_test_ids]
@@ -71,15 +73,15 @@ if __name__ == "__main__":
     log = []
 
     model.train()
-    for step in range(10000):
+    for step in range(args.epochs):
         for i, (a, b) in enumerate(zip(trainloader_a, trainloader_b)):
             batch = data.all_transform(a, b)
-            info = model.compute_all(batch, device=device)
+            info = model.compute_all(batch)
             opt.zero_grad()
             info['loss'].backward()
             opt.step()
 
-            print(step, info['metrics'])
+            print(step, i, info['metrics'])
             # norm of grads for every weight
             '''
             for name, p in model.named_parameters():
