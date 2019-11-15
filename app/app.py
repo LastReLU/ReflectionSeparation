@@ -20,7 +20,7 @@ app.config['DROPZONE_ALLOWED_FILE_CUSTOM'] = True
 app.config['DROPZONE_ALLOWED_FILE_TYPE'] = 'image/*'
 app.config['DROPZONE_REDIRECT_VIEW'] = 'index'
 # Uploads settings
-app.config['UPLOADED_PHOTOS_DEST'] = os.getcwd() + '/uploads'
+app.config['UPLOADED_PHOTOS_DEST'] = os.getcwd() + '/app/uploads'
 app.config['SECRET_KEY'] = os.environ.get('SUPER_KEY', None)
 
 photos = UploadSet('photos', IMAGES)
@@ -49,7 +49,7 @@ def index():
         session['for_rem'] = []
 
     for link in session['for_rem']:
-        os.remove(f'./uploads/{link[1]}')
+        os.remove(f'./app/uploads/{link[1]}')
     session['for_rem'] = []
 
     file_urls = session['file_urls']

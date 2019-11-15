@@ -26,7 +26,7 @@ def save_imgs(links):
         trans_name = f'{name[:-4]}_trans.jpg'
         refl_name = f'{name[:-4]}_refl.jpg'
 
-        img = cv2.imread(f'./uploads/{name}')
+        img = cv2.imread(f'./app/uploads/{name}')
         img_float = img.astype(np.float32) / 255.0
         to_model_img = th.tensor(np.transpose(img_float, (2, 0, 1)))[None]
 
@@ -38,7 +38,7 @@ def save_imgs(links):
         trans_links.append((trans_link, trans_name))
         refl_links.append((refl_link, refl_name))
         
-        cv2.imwrite(f'./uploads/{trans_name}', export_img(trans))
-        cv2.imwrite(f'./uploads/{refl_name}', export_img(refl))
+        cv2.imwrite(f'./app/uploads/{trans_name}', export_img(trans))
+        cv2.imwrite(f'./app/uploads/{refl_name}', export_img(refl))
 
     return (trans_links, refl_links)
