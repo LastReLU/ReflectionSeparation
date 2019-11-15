@@ -13,7 +13,7 @@ import data
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--logs', default='./runs/0')
-    p.add_argument('--batch_size', default=48, type=int)
+    p.add_argument('--batch_size', default=64, type=int)
     p.add_argument('--epochs', default=150, type=int)
     return p.parse_args()
 
@@ -39,10 +39,10 @@ if __name__ == "__main__":
     outdoor_train_size = indoor_train_size // 2
 
     indoor_files = data.filter_images(
-        [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
+        [str(t) for t in Path("./data/indoor_row/").glob("*.jpg")],
         limit=indoor_size)
     outdoor_files = data.filter_images(
-        [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
+        [str(t) for t in Path("./data/outdoor_row/").glob("*.jpg")],
         limit=outdoor_size)
     indoor_files = np.array(multi_reflection * indoor_files)
     outdoor_files = np.array(2 * multi_reflection * outdoor_files)
@@ -67,12 +67,16 @@ if __name__ == "__main__":
     testloader_b = DataLoader(data.DummyDataset(outdoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
     model = model.DummyModel().to(device)
+    #model = torch.load("lastrelu_v1_0_1000.hdf5")
+    #model.load_state_dict(torch.load('lastrelu_v2_0_100.hdf5'))
     opt = optim.Adam(model.parameters(), lr=3e-4)
+    checkpoint = torch.load('lastrelu_v3_0_900.hdf5')
+    model.load_state_dict(checkpoint['model_state_dict'])
+    opt.load_state_dict(checkpoint['optimizer_state_dict'])
+    #train_writer = SummaryWriter(args.logs)
+    #log = []
 
-    train_writer = SummaryWriter(args.logs)
-    log = []
-
-    model.train()
+    model.eval()
     for step in range(args.epochs):
         for i, (a, b) in enumerate(zip(trainloader_a, trainloader_b)):
             batch = data.all_transform(a, b)
@@ -96,7 +100,10 @@ if __name__ == "__main__":
             for k, v in info['metrics'].items():
                 train_writer.add_scalar(k, v, global_step=step)
             '''
-            if i % 100 = 0:
-                torch.save(model, './weights/lastrelu_v1.hdf5' + str(step) + ' ' + str(i) '.hdf5')
+            if i % 50 == 0:
+                #torch.save(model, 'lastrelu_v1_' + str(step) + '_' + str(i) + '.hdf5')
+                torch.save({'model_state_dict': model.state_dict(),
+                            'optimizer_state_dict': opt.state_dict()},
+                        'lastrelu_v3_' + str(step) + '_' + str(i) + '.hdf5')
         # todo: add evaluation loop
     test()

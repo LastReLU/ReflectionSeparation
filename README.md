@@ -1,7 +1,9 @@
 # Reflection Separation Sirius project
 
 ## How to run
-
+0.  apt-get install libglib2.0-0 ;
+    apt-get install -y libsm6 libxext6 libxrender-dev;
+    pip install opencv-python
 1. Download data:
     ```bash
     wget http://groups.csail.mit.edu/vision/LabelMe/NewImages/indoorCVPR_09.tar

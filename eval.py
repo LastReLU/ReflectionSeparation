@@ -23,10 +23,10 @@ if __name__ == "__main__":
     device = torch.device("cuda")
 
     indoor_files = data.filter_images(
-        [str(t) for t in Path("./data/indoor/").glob("*.jpg")],
+        [str(t) for t in Path("./data/indoor_row/").glob("*.jpg")],
         limit=200)
     outdoor_files = data.filter_images(
-        [str(t) for t in Path("./data/outdoor/").glob("*.jpg")],
+        [str(t) for t in Path("./data/outdoor_row/").glob("*.jpg")],
         limit=200)
     print("There are {} indoor and {} outdoor files".format(len(indoor_files), len(outdoor_files)))
 
@@ -36,8 +36,7 @@ if __name__ == "__main__":
     testloader_b = DataLoader(data.DummyDataset(outdoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
     #model = model.DummyModel().to(device)
-    model = torch.load('weights_new0.hdf5')
-    model.eval()
+    model = torch.load('lastrelu_v1_0_1000.hdf5')
     # let's fix the batch and iterate over it
 
     for i, (a, b) in enumerate(zip(testloader_a, testloader_b)):
