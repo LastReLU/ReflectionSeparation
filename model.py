@@ -29,16 +29,24 @@ class DummyModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.stem = nn.Sequential(
-            nn.Conv2d(3, 64, 3, padding=1),
+            nn.Conv2d(3, 64, 9, padding=4),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 9, padding=4),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 5, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 5, padding=2),
             nn.ReLU(),
         )
         self.unet = UnetModel()
         self.restoration = nn.Sequential(
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 5, padding=2),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=1),
+            nn.Conv2d(64, 64, 5, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 9, padding=4),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 9, padding=4),
             nn.ReLU(),
             nn.Conv2d(64, 3, 1),
         )
@@ -76,4 +84,13 @@ class DummyModel(nn.Module):
                 mse_trans=loss_trans.item(),
                 mse_refl=loss_refl.item(),
             )
+        )
+
+    def predict(self, img, device=None):
+        synthetic = img
+        output = self.forward(synthetic)
+
+        return dict(
+            img_trans=output['trans'],
+            img_refl=output['reflect']
         )
