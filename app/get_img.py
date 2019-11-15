@@ -10,7 +10,7 @@ def export_img(img):
 
 def save_imgs(links):
 
-    model = th.load('./model.hdf5', map_location=th.device('cpu'))
+    model = th.load('./app/model.hdf5', map_location=th.device('cpu'))
     model.eval()
 
     trans_links = []
