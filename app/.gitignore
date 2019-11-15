@@ -2,4 +2,4 @@
 uploads/
 
 # models
-*.hdf5
+# *.hdf5
