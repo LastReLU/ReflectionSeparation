@@ -13,7 +13,7 @@ import data
 def _parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('--logs', default='./runs/0')
-    p.add_argument('--batch_size', default=4, type=int)
+    p.add_argument('--batch_size', default=48, type=int)
     p.add_argument('--epochs', default=150, type=int)
     return p.parse_args()
 
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     outdoor_train = outdoor_files[outdoor_train_ids]
     outdoor_test = outdoor_files[outdoor_test_ids]
 
-    trainloader_a = DataLoader(data.DummyDataset(indoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
-    trainloader_b = DataLoader(data.DummyDataset(outdoor_files), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_a = DataLoader(data.DummyDataset(indoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
+    trainloader_b = DataLoader(data.DummyDataset(outdoor_train), batch_size=args.batch_size, shuffle=True, drop_last=True)
     testloader_a = DataLoader(data.DummyDataset(indoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
     testloader_b = DataLoader(data.DummyDataset(outdoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     for step in range(args.epochs):
         for i, (a, b) in enumerate(zip(trainloader_a, trainloader_b)):
             batch = data.all_transform(a, b)
-            info = model.compute_all(batch)
+            info = model.compute_all(batch, device)
             opt.zero_grad()
             info['loss'].backward()
             opt.step()
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             for k, v in info['metrics'].items():
                 train_writer.add_scalar(k, v, global_step=step)
             '''
-            if step % 8 == 0 or step == 1:
-                torch.save(model, 'weights_andrey_v2_' + str(step) + '.hdf5')
+            if i % 100 = 0:
+                torch.save(model, './weights/lastrelu_v1.hdf5' + str(step) + ' ' + str(i) '.hdf5')
         # todo: add evaluation loop
     test()
