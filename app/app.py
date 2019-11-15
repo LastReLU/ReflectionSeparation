@@ -3,12 +3,11 @@ from flask_bootstrap import Bootstrap
 from flask_dropzone import Dropzone
 from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 import os
+import sys
 # from boto.s3.connection import S3Connection
-
+sys.path.append('./app/')
 # import config
 import get_img
-
-print(s3)
 
 
 app = Flask(__name__)
