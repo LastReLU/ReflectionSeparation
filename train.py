@@ -67,14 +67,10 @@ if __name__ == "__main__":
     testloader_b = DataLoader(data.DummyDataset(outdoor_test), batch_size=args.batch_size, shuffle=True, drop_last=True)
 
     model = model.DummyModel().to(device)
-    #model = torch.load("lastrelu_v1_0_1000.hdf5")
-    #model.load_state_dict(torch.load('lastrelu_v2_0_100.hdf5'))
     opt = optim.Adam(model.parameters(), lr=3e-4)
-    checkpoint = torch.load('lastrelu_v3_0_900.hdf5')
+    checkpoint = torch.load('lastrelu_v3_5_100.hdf5')
     model.load_state_dict(checkpoint['model_state_dict'])
     opt.load_state_dict(checkpoint['optimizer_state_dict'])
-    #train_writer = SummaryWriter(args.logs)
-    #log = []
 
     model.eval()
     for step in range(args.epochs):
@@ -101,9 +97,6 @@ if __name__ == "__main__":
                 train_writer.add_scalar(k, v, global_step=step)
             '''
             if i % 50 == 0:
-                #torch.save(model, 'lastrelu_v1_' + str(step) + '_' + str(i) + '.hdf5')
                 torch.save({'model_state_dict': model.state_dict(),
                             'optimizer_state_dict': opt.state_dict()},
-                        'lastrelu_v3_' + str(step) + '_' + str(i) + '.hdf5')
-        # todo: add evaluation loop
-    test()
+                        'lastrelu_v4_' + str(step) + '_' + str(i) + '.hdf5')
